@@ -19,7 +19,14 @@
 import sys
 import os
 from collections import namedtuple
+from environs import Env
 from sqlalchemy import __version__ as sql_version
+
+env = Env()
+
+# Read an .env file from the current directory if one exists
+env.read_env()
+project_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
 sqlalchemy_version2 = ([int(x) for x in sql_version.split('.')] >= [2,0,0])
 
@@ -41,7 +48,7 @@ if HOME_CONFIG:
         os.makedirs(home_dir)
     CONFIG_DIR = os.environ.get('CALIBRE_DBPATH', home_dir)
 else:
-    CONFIG_DIR = os.environ.get('CALIBRE_DBPATH', BASE_DIR)
+    CONFIG_DIR = env.str('CALIBRE_DBPATH', BASE_DIR)
 
 
 ROLE_USER               = 0 << 0
@@ -124,14 +131,8 @@ LDAP_AUTH_SIMPLE         = 0
 DEFAULT_MAIL_SERVER = "mail.example.org"
 
 DEFAULT_PASSWORD    = "admin123"  # nosec
-DEFAULT_PORT        = 8083
-env_CALIBRE_PORT = os.environ.get("CALIBRE_PORT", DEFAULT_PORT)
-try:
-    DEFAULT_PORT = int(env_CALIBRE_PORT)
-except ValueError:
-    print('Environment variable CALIBRE_PORT has invalid value (%s), faling back to default (8083)' % env_CALIBRE_PORT)
-del env_CALIBRE_PORT
 
+DEFAULT_PORT = env.int("CALIBRE_PORT", 8083)
 
 EXTENSIONS_AUDIO    = {'mp3', 'mp4', 'ogg', 'opus', 'wav', 'flac', 'm4a', 'm4b'}
 EXTENSIONS_CONVERT_FROM  = ['pdf', 'epub', 'mobi', 'azw3', 'docx', 'rtf', 'fb2', 'lit', 'lrf', 'txt', 'htmlz', 'rtf', 'odt','cbz','cbr']
